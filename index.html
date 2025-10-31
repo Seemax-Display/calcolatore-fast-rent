@@ -1,0 +1,199 @@
+//Versione 1.0.1 creata da David Failla
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Calcolatore FAST RENT – Seemax</title>
+  <style>
+    :root{
+      --red:#d5141a; /* rosso dominante */
+      --red-dk:#b01217;
+      --bg:#ffffff;
+      --text:#0a0a0a;
+      --muted:#6b7280;
+      --line:#e5e7eb;
+      --panel:#ffffff;
+      --shadow:0 10px 28px rgba(0,0,0,.08);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial}
+    .container{max-width:980px;margin:0 auto;padding:20px}
+    header{
+      border-bottom:4px solid var(--red);
+      background:
+        radial-gradient(1200px 200px at 60% -80px, rgba(213,20,26,.08), transparent 70%) ,
+        #fff;
+    }
+    .brand{
+      display:flex;align-items:center;gap:14px;padding:18px 0;
+    }
+    .logo{
+      width:44px;height:44px;border-radius:10px;background:var(--red);
+      box-shadow:inset 0 -8px 20px rgba(0,0,0,.15);
+      position:relative;
+    }
+    .logo:after{
+      content:"";position:absolute;inset:10px;background:#fff;border-radius:2px;
+      transform:skew(-10deg);
+    }
+    h1{font-size:22px;margin:0}
+    .sub{color:var(--muted);font-size:13px}
+
+    .grid{display:grid;gap:16px}
+    @media(min-width:880px){ .grid.two{grid-template-columns:1fr 1fr} }
+
+    .card{
+      background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;
+      box-shadow:var(--shadow);
+    }
+    .card h2{margin:0 0 10px;font-size:18px}
+    label{display:block;font-size:13px;color:#374151;margin:8px 0 6px}
+    input,select,button{font:inherit}
+    input[type="number"], select{
+      width:100%;padding:11px 12px;border-radius:12px;border:1px solid var(--line);background:#fff;
+      transition:.2s outline, .2s border-color;
+    }
+    input[type="number"]:focus, select:focus{outline:3px solid rgba(213,20,26,.15);border-color:var(--red)}
+    .actions{display:flex;gap:10px;align-items:flex-end}
+    .btn{
+      cursor:pointer;display:inline-flex;align-items:center;gap:8px;
+      background:var(--red);color:#fff;border:0;border-radius:12px;padding:11px 16px;font-weight:700;
+      box-shadow:0 6px 16px rgba(213,20,26,.25);
+    }
+    .btn:hover{background:var(--red-dk)}
+    .hint{font-size:12px;color:var(--muted)}
+
+    table{width:100%;border-collapse:collapse;margin-top:4px}
+    th,td{padding:10px;border-bottom:1px dashed var(--line)}
+    th{text-align:left;color:#374151;font-weight:600}
+    td:last-child{text-align:right;font-variant-numeric:tabular-nums}
+    tfoot td{font-weight:800;border-top:2px solid var(--line)}
+    .pill{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);padding:6px 10px;border-radius:999px;font-size:12px}
+    .muted{color:var(--muted)}
+    .mono{font-variant-numeric:tabular-nums}
+    .footer{font-size:12px;color:var(--muted);margin-top:12px}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>Calcolatore FAST RENT</h1>
+          <div class="sub">Stima canoni e costi accessori secondo i parametri osservati</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container grid two" id="app">
+    <!-- Input -->
+    <section class="card" aria-labelledby="lblInputs">
+      <h2 id="lblInputs">Dati di ingresso</h2>
+      <div class="grid" style="grid-template-columns:1fr 1fr">
+        <div>
+          <label for="importo">Importo imponibile (€)</label>
+          <input id="importo" type="number" min="1" step="0.01" placeholder="Es. 10000" value="10000" />
+          <div class="hint">Inserisci l’imponibile (IVA esclusa)</div>
+        </div>
+        <div>
+          <label for="durata">Durata</label>
+          <select id="durata">
+            <option value="12">12 mesi</option>
+            <option value="24">24 mesi</option>
+            <option value="36" selected>36 mesi</option>
+            <option value="48">48 mesi</option>
+            <option value="60">60 mesi</option>
+          </select>
+          <div class="hint">Il modello supporta 12–60 mesi</div>
+        </div>
+      </div>
+      <div class="actions" style="margin-top:12px">
+        <button class="btn" id="calcola">Calcola</button>
+        <span class="pill"><strong>Istruttoria</strong>: 100,00 €</span>
+      </div>
+      <div class="footer">Questo calcolatore replica i risultati osservati nel simulatore Fast Rent con i coefficienti medi ricavati.</div>
+    </section>
+
+    <!-- Output -->
+    <section class="card" aria-labelledby="lblRisultati">
+      <h2 id="lblRisultati">Risultati</h2>
+      <table aria-describedby="note">
+        <tbody id="tbody">
+          <!-- righe dinamiche -->
+        </tbody>
+        <tfoot>
+          <tr>
+            <td>Totale prima attivazione <span class="muted">(deposito + istruttoria)</span></td>
+            <td id="totAttivazione" class="mono">€ 0,00</td>
+          </tr>
+        </tfoot>
+      </table>
+      <div id="note" class="footer">
+        Rate trimestrali arrotondate **per difetto** all’euro intero (come da osservazioni). Importi IVA esclusa.
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Coefficienti FAST RENT ricavati
+    const K = { 12: 0.10302, 24: 0.05400, 36: 0.04000, 48: 0.03000, 60: 0.02600 };
+
+    // Formattazione euro in it-IT
+    const fmtEur = (v) => v.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' });
+
+    // Arrotondamento trimestrale: floor all'euro
+    const trimestraleDaMensile = (m) => Math.floor(m * 3);
+
+    function calcola() {
+      const importo = Number(document.getElementById('importo').value || 0);
+      const durata = Number(document.getElementById('durata').value);
+      const k = K[durata] ?? 0;
+
+      // Canone mensile
+      const canoneM = importo * k;
+
+      // Rate trimestrali (floor all’euro intero)
+      const canoneT = trimestraleDaMensile(canoneM);
+
+      // Deposito cauzionale (one-off) secondo la soglia 48 mesi
+      const baseMoltiplicatore = durata / 10; // m = 0.10 ⇒ durata/10
+      const uplift = (durata >= 48) ? 1.5 : 1;
+      const deposito = canoneM * baseMoltiplicatore * uplift;
+
+      // Istruttoria fissa
+      const istruttoria = 100;
+
+      // Totale prima attivazione
+      const totAttivazione = deposito + istruttoria;
+
+      // Render
+      const rows = [
+        ['Rata mensile', fmtEur(canoneM)],
+        ['Rata trimestrale', fmtEur(canoneT)],
+        ['Spese di istruttoria (una tantum)', fmtEur(istruttoria)],
+        ['Deposito cauzionale (una tantum)', fmtEur(deposito)],
+      ];
+
+      const tbody = document.getElementById('tbody');
+      tbody.innerHTML = rows.map(([k, v]) =>
+        `<tr><td>${k}</td><td class="mono">${v}</td></tr>`).join('');
+
+      document.getElementById('totAttivazione').textContent = fmtEur(totAttivazione);
+    }
+
+    // Bind
+    document.getElementById('calcola').addEventListener('click', calcola);
+    document.getElementById('durata').addEventListener('change', calcola);
+    // Avvio
+    calcola();
+
+    // Consentire invio con Enter
+    document.getElementById('importo').addEventListener('keydown', (e)=>{
+      if(e.key==='Enter'){ calcola(); }
+    });
+  </script>
+</body>
+</html>
