@@ -5,33 +5,56 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Calcolatore FAST RENT – Seemax</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Crect width='64' height='64' rx='10' ry='10' fill='%23d5141a'/%3E%3Crect x='16' y='16' width='32' height='32' fill='%23ffffff' transform='skewX(-10)'/%3E%3C/svg%3E">
   <style>
     :root{
-      --red:#d5141a; /* rosso dominante */
-      --red-dk:#b01217;
-      --bg:#ffffff;
-      --text:#0a0a0a;
-      --muted:#6b7280;
-      --line:#e5e7eb;
-      --panel:#ffffff;
-      --shadow:0 10px 28px rgba(0,0,0,.08);
+      --red:#d5141a; --red-dk:#b01217;
+      --bg:#ffffff; --text:#0a0a0a; --muted:#6b7280;
+      --line:#e5e7eb; --panel:#ffffff; --shadow:0 10px 28px rgba(0,0,0,.08);
     }
     *{box-sizing:border-box}
     html,body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial}
+
+    /* ===== Splash (loader) ===== */
+    .splash{
+      position:fixed; inset:0; background:#fff; display:flex; flex-direction:column;
+      align-items:center; justify-content:center; z-index:9999;
+      transition:opacity .35s ease, visibility .35s ease;
+    }
+    .splash.hide{opacity:0; visibility:hidden}
+    .splash .title{
+      font-weight:900; letter-spacing:.8px; color:var(--red); font-size:28px; margin-bottom:14px;
+      text-transform:uppercase;
+    }
+    .splash .bar{
+      width:min(260px,70vw); height:7px; border-radius:999px; background:#ffe3e4; overflow:hidden;
+      border:1px solid #ffd2d4;
+    }
+    .splash .bar > i{
+      display:block; height:100%; width:0; background:var(--red);
+      border-radius:999px;
+      animation:loadGrow 1.15s ease-in-out forwards, shimmer 1.4s linear infinite;
+      background-image: linear-gradient(90deg, rgba(255,255,255,.0) 0%, rgba(255,255,255,.25) 50%, rgba(255,255,255,.0) 100%);
+      background-size:180px 100%;
+      background-repeat:no-repeat;
+      background-position:-200px 0;
+    }
+    @keyframes loadGrow { to { width:100% } }
+    @keyframes shimmer { to { background-position:200px 0; } }
+    @media (prefers-reduced-motion: reduce){
+      .splash .bar > i{ animation: loadGrow 1s ease-in-out forwards; }
+    }
+
     .container{max-width:980px;margin:0 auto;padding:20px}
     header{
       border-bottom:4px solid var(--red);
-      background:
-        radial-gradient(1200px 200px at 60% -80px, rgba(213,20,26,.08), transparent 70%) ,
-        #fff;
+      background: radial-gradient(1200px 200px at 60% -80px, rgba(213,20,26,.08), transparent 70%), #fff;
     }
-    .brand{
-      display:flex;align-items:center;gap:14px;padding:18px 0;
-    }
+    .brand{display:flex;align-items:center;gap:16px;padding:18px 0}
+    /* Icona FAST RENT stilizzata */
     .logo{
       width:44px;height:44px;border-radius:10px;background:var(--red);
-      box-shadow:inset 0 -8px 20px rgba(0,0,0,.15);
-      position:relative;
+      box-shadow:inset 0 -8px 20px rgba(0,0,0,.15); position:relative; flex:0 0 auto;
     }
     .logo:after{
       content:"";position:absolute;inset:10px;background:#fff;border-radius:2px;
@@ -43,23 +66,17 @@
     .grid{display:grid;gap:16px}
     @media(min-width:880px){ .grid.two{grid-template-columns:1fr 1fr} }
 
-    .card{
-      background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;
-      box-shadow:var(--shadow);
-    }
+    .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:var(--shadow)}
     .card h2{margin:0 0 10px;font-size:18px}
     label{display:block;font-size:13px;color:#374151;margin:8px 0 6px}
     input,select,button{font:inherit}
     input[type="number"], select{
-      width:100%;padding:11px 12px;border-radius:12px;border:1px solid var(--line);background:#fff;
-      transition:.2s outline, .2s border-color;
+      width:100%;padding:11px 12px;border-radius:12px;border:1px solid var(--line);background:#fff;transition:.2s outline,.2s border-color;
     }
     input[type="number"]:focus, select:focus{outline:3px solid rgba(213,20,26,.15);border-color:var(--red)}
     .actions{display:flex;gap:10px;align-items:flex-end}
     .btn{
-      cursor:pointer;display:inline-flex;align-items:center;gap:8px;
-      background:var(--red);color:#fff;border:0;border-radius:12px;padding:11px 16px;font-weight:700;
-      box-shadow:0 6px 16px rgba(213,20,26,.25);
+      cursor:pointer;display:inline-flex;align-items:center;gap:8px;background:var(--red);color:#fff;border:0;border-radius:12px;padding:11px 16px;font-weight:700;box-shadow:0 6px 16px rgba(213,20,26,.25);
     }
     .btn:hover{background:var(--red-dk)}
     .hint{font-size:12px;color:var(--muted)}
@@ -76,6 +93,12 @@
   </style>
 </head>
 <body>
+  <!-- Splash Loader -->
+  <div class="splash" role="status" aria-live="polite" aria-label="Caricamento">
+    <div class="title">FAST RENT</div>
+    <div class="bar" aria-hidden="true"><i></i></div>
+  </div>
+
   <header>
     <div class="container">
       <div class="brand">
@@ -121,9 +144,7 @@
     <section class="card" aria-labelledby="lblRisultati">
       <h2 id="lblRisultati">Risultati</h2>
       <table aria-describedby="note">
-        <tbody id="tbody">
-          <!-- righe dinamiche -->
-        </tbody>
+        <tbody id="tbody"></tbody>
         <tfoot>
           <tr>
             <td>Totale prima attivazione <span class="muted">(deposito + istruttoria)</span></td>
@@ -141,10 +162,7 @@
     // Coefficienti FAST RENT ricavati
     const K = { 12: 0.10302, 24: 0.05400, 36: 0.04000, 48: 0.03000, 60: 0.02600 };
 
-    // Formattazione euro in it-IT
     const fmtEur = (v) => v.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' });
-
-    // Arrotondamento trimestrale: floor all'euro
     const trimestraleDaMensile = (m) => Math.floor(m * 3);
 
     function calcola() {
@@ -152,24 +170,16 @@
       const durata = Number(document.getElementById('durata').value);
       const k = K[durata] ?? 0;
 
-      // Canone mensile
       const canoneM = importo * k;
-
-      // Rate trimestrali (floor all’euro intero)
       const canoneT = trimestraleDaMensile(canoneM);
 
-      // Deposito cauzionale (one-off) secondo la soglia 48 mesi
-      const baseMoltiplicatore = durata / 10; // m = 0.10 ⇒ durata/10
-      const uplift = (durata >= 48) ? 1.5 : 1;
+      const baseMoltiplicatore = durata / 10;    // m=0,10 ⇒ durata/10
+      const uplift = (durata >= 48) ? 1.5 : 1;   // uplift ≥48m
       const deposito = canoneM * baseMoltiplicatore * uplift;
 
-      // Istruttoria fissa
       const istruttoria = 100;
-
-      // Totale prima attivazione
       const totAttivazione = deposito + istruttoria;
 
-      // Render
       const rows = [
         ['Rata mensile', fmtEur(canoneM)],
         ['Rata trimestrale', fmtEur(canoneT)],
@@ -178,22 +188,25 @@
       ];
 
       const tbody = document.getElementById('tbody');
-      tbody.innerHTML = rows.map(([k, v]) =>
-        `<tr><td>${k}</td><td class="mono">${v}</td></tr>`).join('');
-
+      tbody.innerHTML = rows.map(([k, v]) => `<tr><td>${k}</td><td class="mono">${v}</td></tr>`).join('');
       document.getElementById('totAttivazione').textContent = fmtEur(totAttivazione);
     }
 
-    // Bind
+    // Splash handling
+    function hideSplash(){
+      const sp = document.querySelector('.splash');
+      if(!sp) return;
+      sp.classList.add('hide');
+      setTimeout(()=> sp.remove(), 400);
+    }
+    window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(hideSplash, 1100);
+      calcola();
+    });
+
     document.getElementById('calcola').addEventListener('click', calcola);
     document.getElementById('durata').addEventListener('change', calcola);
-    // Avvio
-    calcola();
-
-    // Consentire invio con Enter
-    document.getElementById('importo').addEventListener('keydown', (e)=>{
-      if(e.key==='Enter'){ calcola(); }
-    });
+    document.getElementById('importo').addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ calcola(); }});
   </script>
 </body>
 </html>
